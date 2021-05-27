@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
+    private float boostTimer;
+    private bool boosting;
 
     public Rigidbody2D rb;
     public Camera cam;
@@ -12,12 +14,32 @@ public class PlayerController : MonoBehaviour
     Vector2 movement;
     Vector2 mousePos;
 
+    //Perdon por el hardcode
+
+    void Start()
+    {
+        boostTimer = 0; 
+        boosting = false;
+    }
+
     void Update()
     {
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
         mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+
+        if (boosting)
+        {
+            boostTimer += Time.deltaTime;
+
+            if (boostTimer >= 6)
+            {
+                moveSpeed = 5;
+                boostTimer = 0;
+                boosting = false;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -30,5 +52,16 @@ public class PlayerController : MonoBehaviour
 
         rb.rotation = angle;
     }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "SpeedBoost")
+        {
+            boosting = true;
+            moveSpeed = 10;
+            Destroy(other.gameObject);
+        }
+    }
+
 
 }
